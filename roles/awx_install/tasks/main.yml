@@ -1,0 +1,97 @@
+---
+# Tasks for installing and configuring AWX application.
+
+
+- include_vars: '{{ item }}'
+  with_first_found:
+    - files:
+        - '{{ ansible_distribution }}-{{ ansible_distribution_version }}.yml'           # CentOS-6.5
+        - '{{ ansible_os_family }}-{{ ansible_distribution_version }}.yml'              # RedHat-6.5
+        - '{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml'     # CentOS-6
+        - '{{ ansible_os_family }}-{{ ansible_distribution_major_version }}.yml'        # RedHat-6
+        - '{{ ansible_distribution }}.yml'                                              # CentOS
+        - '{{ ansible_os_family }}.yml'                                                 # RedHat
+        - 'default.yml'
+      paths: '../../supervisor/vars'
+
+- name: configure awx settings directory
+  file: path=/etc/awx state=directory owner={{aw_user}} group={{aw_user}} mode=0770
+
+- name: configure awx user home directory
+  file: path={{aw_home}} state=directory owner={{aw_user}} group={{aw_user}} mode=0755
+
+- name: configure awx .ssh directory
+  file: path={{aw_home}}/.ssh state=directory owner={{aw_user}} group={{aw_user}} mode=0700
+
+- name: configure awx projects directory
+  file: path={{aw_home}}/projects state=directory owner={{aw_user}} group={{aw_user}} mode=0750
+
+- name: configure awx job output directory
+  file: path={{aw_home}}/job_status state=directory owner={{aw_user}} group={{aw_user}} mode=0750
+
+- name: configure awx static directory
+  file: path={{aw_home}}/public/static state=directory owner={{aw_user}} group={{aw_user}} mode=0755 recurse=yes
+
+- name: configure awx conf.d directory
+  file: path=/etc/awx/conf.d state=directory owner={{aw_user}} group={{aw_group}} mode=0750
+
+- name: configure tower log directory
+  file: path=/var/log/awx state=directory owner={{aw_user}} group={{aw_user}} mode=0755
+
+- name: configure tower warning log file
+  file: path=/var/log/awx/tower_warnings.log owner={{aw_user}} group={{aw_group}} mode=0640 state=touch
+
+- name: configure awx celeryd settings
+  template: src=celeryd.py.j2 dest=/etc/awx/conf.d/celeryd.py force=no
+  notify:
+    - restart httpd
+    - restart apache2
+    - restart supervisor
+
+- name: configure file permissions on awx celeryd settings
+  file: path=/etc/awx/conf.d/celeryd.py owner={{aw_user}} group={{aw_group}} mode=0640
+
+- name: configure awx settings
+  template: src=settings.py.j2 dest=/etc/awx/settings.py force=no
+  notify:
+    - restart httpd
+    - restart apache2
+    - restart munin
+
+- name: configure file permissions on awx settings
+  file: path=/etc/awx/settings.py owner={{aw_user}} group={{aw_group}} mode=0640
+
+- name: stop supervisor if it is running
+  service: name={{sup_init_name}} state=stopped
+
+- name: create awx database schema
+  command: awx-manage syncdb --noinput
+  sudo_user: awx
+  register: awx_syncdb
+  changed_when: "'Creating table ' in awx_syncdb.stdout"
+
+- name: migrate awx database schema (may take awhile when upgrading)
+  command: awx-manage migrate --noinput
+  sudo_user: awx
+  register: awx_migrate
+  changed_when: "'Migrating forwards to' in awx_migrate.stdout"
+
+- name: collect awx static files
+  command: awx-manage collectstatic --noinput --clear
+  sudo_user: awx
+  sudo: True
+  register: awx_collectstatic
+  changed_when: "not awx_collectstatic.stdout_lines[-1].startswith('0 static files')"
+
+# NOTE: The following command works except for checking if the user already
+# exists and setting the password:
+#   awx-manage createsuperuser --username={{admin_username}} --email={{admin_email}} --noinput
+# So instead use a variation of the example from:
+#   http://source.mihelac.org/2009/10/23/django-avoiding-typing-password-for-superuser/
+
+- name: create django super user
+  shell: echo "from django.contrib.auth.models import User; User.objects.filter(username='{{admin_username}}').count() or User.objects.create_superuser('{{admin_username}}', '{{admin_email}}', '{{admin_password}}')" | awx-manage shell
+  sudo_user: awx
+
+- name: enable ansible-tower init
+  service: name=ansible-tower enabled=yes

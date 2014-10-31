@@ -1,0 +1,6 @@
+---
+# PostgreSQL Credentials
+pg_username: awx
+# defined in 'group_vars/all'
+# pg_password: awx
+pg_database: awx

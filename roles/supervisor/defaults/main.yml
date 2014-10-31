@@ -1,0 +1,4 @@
+---
+# Celery Settings
+# This takes the form of: max,min
+celery_autoscale: 50,4

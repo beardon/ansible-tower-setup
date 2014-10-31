@@ -1,0 +1,53 @@
+---
+# Tasks for configuring PostgreSQL server.
+
+- include_vars: '{{ item }}'
+  with_first_found:
+    - files:
+        - '{{ ansible_distribution }}-{{ ansible_distribution_version }}.yml'           # CentOS-6.5
+        - '{{ ansible_os_family }}-{{ ansible_distribution_version }}.yml'              # RedHat-6.5
+        - '{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml'     # CentOS-6
+        - '{{ ansible_os_family }}-{{ ansible_distribution_major_version }}.yml'        # RedHat-6
+        - '{{ ansible_distribution }}.yml'                                              # CentOS
+        - '{{ ansible_os_family }}.yml'                                                 # RedHat
+        - 'default.yml'
+      paths: '../vars'
+
+- name: init postgresql
+  command: service postgresql initdb creates=/var/lib/pgsql/data/PG_VERSION
+  when: ansible_distribution != "Ubuntu"
+
+- name: update postgresql authentication settings
+  template: src=pg_hba.conf.j2 dest={{pg_hba_location}} owner=postgres
+  register: pg_hba_conf
+
+- name: restart postgresql when authentication settings changed
+  service: name=postgresql state=restarted
+  when: pg_hba_conf|changed
+  register: postgresql_restart
+
+- name: wait for postgresql restart
+  command: sleep 10
+  when: postgresql_restart|changed
+
+- name: configure postgresql to startup automatically
+  service: name=postgresql enabled=no
+
+- name: determine if postgresql user exists
+  command: psql postgres -tAc "SELECT 1 FROM pg_roles WHERE rolname='{{pg_username}}'"
+  sudo: true
+  sudo_user: postgres
+  ignore_errors: true
+  register: pg_user_exists
+  failed_when: pg_user_exists.stdout != '1'
+  changed_when: false
+
+- name: create the postgresql user for awx
+  postgresql_user: name={{pg_username}} password="{{pg_password}}" login_user=postgres
+  sudo_user: postgres
+  when: pg_user_exists|failed
+
+- name: create the postgresql database for awx
+  postgresql_db: name={{pg_database}} owner={{pg_username}} state=present login_user=postgres
+  sudo_user: postgres
+

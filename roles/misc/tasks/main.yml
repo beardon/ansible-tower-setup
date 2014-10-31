@@ -1,0 +1,6 @@
+---
+
+- name: deploy config file for rsyslogd
+  copy: src=51-awx.conf dest=/etc/rsyslog.d/51-awx.conf
+  notify: restart rsyslogd
+

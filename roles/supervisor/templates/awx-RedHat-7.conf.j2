@@ -1,0 +1,47 @@
+[program:awx-celeryd]
+command = /usr/bin/awx-manage celeryd -B -l debug --autoscale={{celery_autoscale}} -Ofair -s {{ aw_home }}/beat.db
+directory = {{ aw_home }}
+user = {{ aw_user }}
+autostart = true
+autorestart = true
+stopwaitsecs = 600
+redirect_stderr=true
+stdout_logfile = /var/log/supervisor/awx-celeryd.log
+stdout_logfile_maxbytes = 10MB
+stdout_logfile_backups = 10
+
+[program:awx-callback-receiver]
+command = /usr/bin/awx-manage run_callback_receiver
+directory = {{ aw_home }}
+user = {{ aw_user }}
+autostart = true
+autorestart = true
+stopwaitsecs = 600
+redirect_stderr=true
+stdout_logfile = /var/log/supervisor/awx-callback-receiver.log
+stdout_logfile_maxbytes = 10MB
+stdout_logfile_backups = 10
+
+[program:awx-task-system]
+command = /usr/bin/awx-manage run_task_system
+directory = {{ aw_home }}
+user = {{ aw_user }}
+autostart = true
+autorestart = true
+stopwaitsecs = 600
+redirect_stderr=true
+stdout_logfile = /var/log/supervisor/awx-task-manager.log
+stdout_logfile_maxbytes = 10MB
+stdout_logfile_backups = 10
+
+[program:awx-socketio-service]
+command = /usr/bin/awx-manage run_socketio_service
+directory = {{ aw_home }}
+user = {{ aw_user }}
+autostart = true
+autorestart = true
+stopwaitsecs = 600
+redirect_stderr=true
+stdout_logfile = /var/log/supervisor/awx-socketio-service.log
+stdout_logfile_maxbytes = 10MB
+stdout_logfile_backups = 10

@@ -1,0 +1,31 @@
+---
+epel_release_url: 'http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-2.noarch.rpm'
+el_dependencies:
+  - httpd
+  - munin
+  - munin-node
+  - mod_wsgi
+  - mod_ssl
+  - libselinux-python
+  - policycoreutils-python
+  - postgresql-server
+  - python-django
+  - python-psycopg2
+  - python-setuptools
+  - python-passlib
+  - python-ldap
+  - setools-libs
+  - supervisor
+  - git
+  - subversion
+  - sshpass
+  - mercurial
+  - yum-utils
+  - rabbitmq-server
+  - zeromq3
+  - python-zmq
+  - iptables-services
+  - python-gevent
+  - pyOpenSSL
+  - sos
+  - python-pip

@@ -1,0 +1,3 @@
+---
+sup_init_name: "supervisor"
+sup_conf_location: "/etc/supervisor/conf.d/awx.conf"

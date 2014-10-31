@@ -1,0 +1,31 @@
+---
+epel_release_url: 'http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm'
+el_dependencies:
+  - Django14
+  - httpd
+  - munin
+  - munin-node
+  - mod_wsgi
+  - mod_ssl
+  - libselinux-python
+  - policycoreutils-python
+  - postgresql-server
+  - python-psycopg2
+  - python-setuptools
+  - python-ldap
+  - python-passlib
+  - setools-libs-python
+  - supervisor
+  - git
+  - subversion
+  - sshpass
+  - mercurial
+  - yum-utils
+  - rabbitmq-server
+  - zeromq3
+  - python-zmq
+  - python-gevent
+  - pyOpenSSL
+  - rsyslog
+  - sos
+  - python-pip

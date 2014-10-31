@@ -1,0 +1,16 @@
+---
+# Handlers for common notifications.
+
+- name: restart httpd
+  service: name=httpd state=restarted
+  when: ansible_distribution in ["CentOS","RedHat"]
+
+- name: restart apache2
+  service: name=apache2 state=restarted
+  when: ansible_distribution in ["Ubuntu"]
+
+- name: restart munin
+  service: name=munin-node state=restarted
+
+- name: restart tower
+  service: name=ansible-tower state=restarted

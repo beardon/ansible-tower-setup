@@ -1,0 +1,3 @@
+# AWX settings for celeryd (new in 1.4.5).
+
+BROKER_URL = 'amqp://{{rabbitmq_username}}:{{rabbitmq_password}}@{{rabbitmq_hostname}}:{{rabbitmq_port}}/{{rabbitmq_vhost}}'

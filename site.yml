@@ -1,0 +1,51 @@
+---
+# This playbook deploys the Ansible Tower application (database, web and
+# worker daemons) to a single server.
+
+- hosts: all
+  gather_facts: true
+  tasks:
+    - name: group hosts by distribution
+      group_by: key="{{ ansible_distribution }}-{{ ansible_distribution_version }}"
+      changed_when: false
+
+- hosts: RedHat-7*:RedHat-6*:CentOS-7*:CentOS-6*:Ubuntu-12.04:Ubuntu-14.04
+  gather_facts: false
+  tasks:
+    - name: group hosts for supported distributions
+      group_by: key="supported"
+      changed_when: false
+
+- hosts: "!supported"
+  gather_facts: false
+  tasks:
+    - name: fail for unsupported distribution
+      fail: msg="{{ ansible_distribution }} {{ ansible_distribution_version }}
+                 is not a supported OS for a Tower installation.  Supported
+                 OSes include Red Hat Enterprise Linux 6/7, CentOS 6/7, or
+                 Ubuntu 12.04/14.04."
+
+- hosts: RedHat-7*:RedHat-6*:CentOS-7*:CentOS-6*
+  gather_facts: false
+  user: root
+  roles:
+    - { role: packages_el, tags: packages }
+    - { role: postgres, tags: postgresql }
+    - { role: rabbitmq, tags: rabbitmq }
+    - { role: awx_install, tags: awx }
+    - { role: supervisor, tags: supervisor }
+    - { role: httpd, tags: httpd }
+    - { role: iptables, tags: iptables }
+    - { role: misc, tags: misc }
+
+- hosts: Ubuntu-12*:Ubuntu-14*
+  gather_facts: false
+  user: root
+  roles:
+    - { role: packages_ubuntu, tags: packages }
+    - { role: postgres, tags: postgresql }
+    - { role: rabbitmq, tags: rabbitmq }
+    - { role: awx_install, tags: awx }
+    - { role: supervisor, tags: supervisor }
+    - { role: httpd, tags: httpd }
+    - { role: misc, tags: misc }

@@ -1,0 +1,73 @@
+---
+# Tasks to install required packages for awx
+
+- name: install ubuntu awx apt repository
+  template: src=awx_repo.j2 dest=/etc/apt/sources.list.d/awx_repo.list
+
+- name: install python-pip package for ubuntu 12.04
+  apt: name=python-pip
+  when: ansible_lsb.codename == "precise"
+
+- name: install django 1.5.5 via pip for ubuntu 12.04
+  pip: name=django version=1.5.5
+  when: ansible_lsb.codename == "precise"
+
+- name: install django via apt for ubuntu 12.10 or later
+  apt: name=python-django
+  when: ansible_lsb.codename != "precise"
+
+- name: add zeromq ppa
+  apt_repository: repo='ppa:chris-lea/zeromq' update_cache=yes
+  when: ansible_lsb.codename != "trusty"
+
+- name: add sosreport ppa
+  apt_repository: repo='ppa:debugmonkeys/sosreport' update_cache=yes
+  when: ansible_lsb.codename != "trusty"
+
+- name: install required packages via apt
+  apt: name={{ item }}
+  with_items:
+    - apache2
+    - munin
+    - munin-node
+    - libapache2-mod-wsgi
+    - postgresql
+    - python-psycopg2
+    - python-setuptools
+    - python-ldap
+    - supervisor
+    - git
+    - subversion
+    - sshpass
+    - mercurial
+    - rabbitmq-server
+    - libzmq3
+    - libzmq3-dev
+    - python-zmq
+    - python-gevent
+    - python-openssl
+    - python-passlib
+    - rsyslog
+    - sosreport
+
+- name: stat SECRET_KEY
+  stat: path=/etc/awx/SECRET_KEY
+  register: secret_key
+
+- name: backup SECRET_KEY
+  slurp: src=/etc/awx/SECRET_KEY
+  register: sk_content
+  when: secret_key.stat.exists
+
+- name: install awx package via apt
+  apt: name={{ awx_package_name }} update_cache=yes force=yes state=latest
+
+- name: restore SECRET_KEY
+  copy: content={{ sk_content.content.decode('base64') }} dest=/etc/awx/SECRET_KEY force=yes
+  when: secret_key.stat.exists
+
+- name: remove ubuntu awx apt repository
+  file: path=/etc/apt/sources.list.d/awx_repo.list state=absent
+
+- name: update apt cache
+  apt: update_cache=yes

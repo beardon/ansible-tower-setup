@@ -1,0 +1,63 @@
+---
+# Variables applicable to all hosts
+
+# ***** CHANGES TO THESE PARAMETERS ARE ABSOLUTELY REQUIRED *****
+
+pg_password: AWsecret
+admin_password: password
+munin_password: password
+rabbitmq_password: "AWXbunnies"
+
+# ***** OPTIONAL, NOT REQUIRED TO CHANGE ****
+
+# Optional variables defined in 'setup/roles/awx_install/defaults/main.yml'
+# =========================================================================
+
+# aw_repo_url: "http://releases.ansible.com/ansible-tower"
+
+# Unprivileged User Account (for now, don't change this username)
+# aw_user: awx
+# aw_group: awx
+# aw_home: /var/lib/awx
+
+# Specify the awx package name
+# awx_package_name: ansible-tower
+
+# Django Options
+# admin_username: admin
+# admin_email: admin@example.com
+
+# Logging Options (for Django requests). Level should be ERROR to only log 500
+# errors, WARNING to also log 4xx responses.
+# syslog_facility: local0
+# syslog_level: ERROR
+
+# Apache Options
+# these addresses should match the external name of your server as you
+# are going to access them from other machines
+
+# httpd_server_name: localhost
+# httpd_server_aliases:
+#  - localhost
+#  - 127.0.0.1
+
+# Optional variables defined in 'setup/roles/postgres/defaults/main.yml'
+# ======================================================================
+
+# pg_username: awx
+# pg_database: awx
+
+# Optional variables defined in 'setup/roles/rabbitmq/defaults/main.yml'
+# ======================================================================
+
+# rabbitmq_hostname: "localhost"
+# rabbitmq_port: 5672
+# rabbitmq_vhost: "awx"
+# rabbitmq_username: "awx"
+
+# Optional variables defined in 'setup/roles/supervisor/defaults/main.yml'
+# ========================================================================
+
+# Celery Settings
+# This takes the form of: max,min
+# celery_autoscale: 50,4

@@ -1,0 +1,2 @@
+---
+pg_hba_location: "/var/lib/pgsql/data/pg_hba.conf"

@@ -1,0 +1,26 @@
+---
+
+- name: check whether rabbitmq is already reachable as localhost node
+  command: rabbitmqctl -n rabbit@{{rabbitmq_hostname}} status
+  register: rabbitmq_check
+  ignore_errors: true
+  changed_when: false
+
+- name: stop the rabbitmq service before updating the nodename if the check above failed
+  service: name=rabbitmq-server state=stopped
+  when: rabbitmq_check|failed
+
+- name: set nodename for rabbitmq
+  lineinfile: dest=/etc/rabbitmq/rabbitmq-env.conf create=yes mode=0644 regexp=^NODENAME= line=NODENAME=rabbit@{{rabbitmq_hostname}}
+
+- name: start and enable the rabbitmq service
+  service: name=rabbitmq-server state=running enabled=no
+
+- name: wait for rabbitmq service to be running
+  wait_for: port={{rabbitmq_port}}
+
+- name: create the rabbitmq vhost
+  rabbitmq_vhost: name={{rabbitmq_vhost}} state=present node=rabbit@{{rabbitmq_hostname}}
+
+- name: create the rabbitmq user
+  rabbitmq_user: user={{rabbitmq_username}} password={{rabbitmq_password}} vhost={{rabbitmq_vhost}} configure_priv=.* read_priv=.* write_priv=.* state=present force=no node=rabbit@{{rabbitmq_hostname}}

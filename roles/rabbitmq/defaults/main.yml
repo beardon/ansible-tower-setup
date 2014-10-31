@@ -1,0 +1,9 @@
+---
+# Default Celery/RabbitMQ settings for AWX.
+
+rabbitmq_hostname: "localhost"
+rabbitmq_port: 5672
+rabbitmq_vhost: "awx"
+rabbitmq_username: "awx"
+# defined in 'group_vars/all'
+# rabbitmq_password: "awx"

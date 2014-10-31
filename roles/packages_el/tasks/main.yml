@@ -1,0 +1,36 @@
+---
+# Tasks to install required packages for EL distros
+
+- include_vars: '{{ item }}'
+  with_first_found:
+    - files:
+        - '{{ ansible_distribution }}-{{ ansible_distribution_version }}.yml'           # CentOS-6.5
+        - '{{ ansible_os_family }}-{{ ansible_distribution_version }}.yml'              # RedHat-6.5
+        - '{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml'     # CentOS-6
+        - '{{ ansible_os_family }}-{{ ansible_distribution_major_version }}.yml'        # RedHat-6
+        - '{{ ansible_distribution }}.yml'                                              # CentOS
+        - '{{ ansible_os_family }}.yml'                                                 # RedHat
+        - 'default.yml'
+      paths: '../vars'
+
+- name: install epel-release
+  shell: rpm -q epel-release || rpm -Uvh '{{epel_release_url}}'
+  register: epel_installed
+  changed_when: "'not installed' in epel_installed.stdout"
+
+- name: install required packages
+  yum: name={{ item }} state=installed
+  with_items: el_dependencies
+
+- name: enable apache munin monitoring
+  file: src=/usr/share/munin/plugins/apache_processes dest=/etc/munin/plugins/apache_processes state=link
+
+- name: install awx yum repository
+  template: src=yum_repo.j2 dest=/etc/yum.repos.d/awx.repo
+  register: yum_repo
+
+- name: yum clean cached awx repository information
+  command: yum clean all --disablerepo=* --enablerepo=ansibleworks-awx
+
+- name: install awx RPM
+  yum: name={{ awx_package_name }} enablerepo=ansibleworks-awx disable_gpg_check=yes state=latest

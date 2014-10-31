@@ -1,0 +1,32 @@
+---
+# AnsibleWorks repository location. This should be the
+# root of the repo, and does not include the /deb or /rpm path
+aw_repo_url: "http://releases.ansible.com/ansible-tower"
+
+# Unprivileged User Account (for now, don't change this username)
+aw_user: awx
+aw_group: awx
+aw_home: /var/lib/awx
+
+# Specify the awx package name
+awx_package_name: ansible-tower
+
+# Django Options
+admin_username: admin
+admin_email: admin@example.com
+# defined in 'group_vars/all'
+# admin_password: FIXME
+
+# Logging Options (for Django requests). Level should be ERROR to only log 500
+# errors, WARNING to also log 4xx responses.
+syslog_facility: local0
+syslog_level: ERROR
+
+# Apache Options
+# these addresses should match the external name of your server as you
+# are going to access them from other machines
+
+httpd_server_name: localhost
+httpd_server_aliases:
+ - localhost
+ - 127.0.0.1

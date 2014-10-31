@@ -1,0 +1,8 @@
+[ansibleworks-awx]
+name=AnsibleWorks AWX Repository - $releasever $basearch
+{% if ansible_distribution_version.startswith('7') %}
+baseurl={{ aw_repo_url }}/rpm/epel-7-$basearch
+{% elif ansible_distribution_version.startswith('6') %}
+baseurl={{ aw_repo_url }}/rpm/epel-6-$basearch
+{% endif %}
+enabled=0
