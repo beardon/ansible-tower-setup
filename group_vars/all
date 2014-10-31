@@ -3,10 +3,10 @@
 
 # ***** CHANGES TO THESE PARAMETERS ARE ABSOLUTELY REQUIRED *****
 
-pg_password: AWsecret
-admin_password: password
-munin_password: password
-rabbitmq_password: "AWXbunnies"
+pg_password: j2twtlhc
+admin_password: 7BJoYBzZ9TL2
+munin_password: 2gk5tvRM5NYp
+rabbitmq_password: "46wHBn3flzUe"
 
 # ***** OPTIONAL, NOT REQUIRED TO CHANGE ****
 
